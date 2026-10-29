@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#073b32">
+  <title>FigurineHub | Collect. Trade. Discover.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="FigurineHub home">
+      <span class="brand-mark" aria-hidden="true">▦</span>
+      <span>FigurineHub</span>
+    </a>
+
+    <form class="search-bar" id="searchForm" role="search">
+      <input id="searchInput" type="search" placeholder="Search figures, cards, brands..." aria-label="Search products">
+      <button type="submit" aria-label="Search">⌕</button>
+    </form>
+
+    <nav class="desktop-nav" aria-label="Main navigation">
+      <a href="#products" aria-label="Favorites" class="nav-icon">♡</a>
+      <a href="#products" aria-label="Shopping bag" class="nav-icon">♧</a>
+      <a href="#footer">Login</a>
+      <a class="signup-link" href="#footer">Signup</a>
+    </nav>
+    <button class="mobile-menu-button" id="menuToggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">COLLECT YOUR FAVORITES</p>
+        <h1>Your Next Figure<br>or Card is Here.</h1>
+        <p class="hero-description">Discover, collect, and trade your favorite<br class="desktop-break"> figurines and trading cards — all in one place.</p>
+        <div class="hero-actions">
+          <a href="#products" class="button button-primary">SHOP NOW</a>
+          <a href="#products" class="button button-outline">EXPLORE COLLECTIONS</a>
+        </div>
+      </div>
+      <div class="hero-art">
+        <div class="hero-image image-placeholder hero-main-image" role="img" aria-label="Featured collectible figurines">
+          <span class="placeholder-label">Featured collectibles</span>
+        </div>
+        <div class="sale-badge">10%<br><strong>OFF TODAY</strong></div>
+        <div class="hero-orb orb-one"></div>
+        <div class="hero-orb orb-two"></div>
+      </div>
+    </section>
+
+    <section class="benefits" aria-label="Shopping benefits">
+      <article class="benefit-card">
+        <span class="benefit-icon">♧</span>
+        <h2>Wide Selection</h2>
+        <p class="benefit-highlight">Figures &amp; Trading cards</p>
+        <p>Thousands of collectibles from top brands worldwide.</p>
+      </article>
+      <article class="benefit-card">
+        <span class="benefit-icon">▣</span>
+        <h2>Secure Checkout</h2>
+        <p class="benefit-highlight">Safe &amp; Reliable</p>
+        <p>Multiple secure payment options with buyer protection.</p>
+      </article>
+      <article class="benefit-card">
+        <span class="benefit-icon">♧</span>
+        <h2>Trusted Sellers</h2>
+        <p class="benefit-highlight">Verified &amp; Rated</p>
+        <p>All sellers are verified with ratings from real buyers.</p>
+      </article>
+      <article class="benefit-card">
+        <span class="benefit-icon">✧</span>
+        <h2>Great Deals</h2>
+        <p class="benefit-highlight">Promotions &amp; Discounts</p>
+        <p>Regular sales, exclusive promos, codes, and bundle offers.</p>
+      </article>
+    </section>
+
+    <section class="products-section" id="products">
+      <div class="section-heading">
+        <div>
+          <h2>Products</h2>
+          <p>Hand-picked collectibles just for you</p>
+        </div>
+        <span class="demo-label">DEMO PRODUCTS</span>
+      </div>
+      <div class="product-grid" id="productGrid" aria-live="polite">
+        <!-- Demo cards are rendered by script.js. Replace the demo array with database data later. -->
+      </div>
+      <p class="empty-state" id="emptyState" hidden>No demo products match your search. Try another keyword.</p>
+    </section>
+
+    <section class="promotions" id="promotions">
+      <div class="promotion-copy">
+        <span class="limited-pill">Limited time Offers</span>
+        <h2>Special Deals &amp;<br>Promotions</h2>
+        <p>Save more on your favorite<br> collectibles this week only.</p>
+        <a href="#products" class="button button-primary promotion-button">View All Promotions <span aria-hidden="true">➜</span></a>
+      </div>
+      <div class="deal-list">
+        <article class="deal-card">
+          <strong>10% Off</strong>
+          <span>All Figurines</span>
+          <code>FIGURE10</code>
+        </article>
+        <article class="deal-card">
+          <strong>₱200 OFF</strong>
+          <span>Orders ₱2,000+</span>
+          <code>COLLECT200</code>
+        </article>
+        <article class="deal-card">
+          <strong>FREE SHIP</strong>
+          <span>Orders ₱1,500+</span>
+          <code>FREESHIP</code>
+        </article>
+      </div>
+      <div class="promotion-pattern" aria-hidden="true"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="footer">
+    <div class="footer-top">
+      <a class="brand footer-brand" href="#">
+        <span class="brand-mark" aria-hidden="true">▦</span>
+        <span>FigurineHub</span>
+      </a>
+      <form class="newsletter" id="newsletterForm">
+        <label for="newsletterEmail">Get deals in your inbox</label>
+        <div class="newsletter-control">
+          <input id="newsletterEmail" type="email" placeholder="your@email.com" required>
+          <button type="submit" aria-label="Subscribe">GO</button>
+        </div>
+        <span id="newsletterMessage" class="newsletter-message" aria-live="polite"></span>
+      </form>
+    </div>
+    <p class="footer-tagline">Your premier destination for figurines and<br class="desktop-break"> trading cards. Collect. Trade. Discover.</p>
+    <p class="copyright">© 2026 FigurineHub. All rights reserved.</p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
+</body>
+</html>
