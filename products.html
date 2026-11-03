@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#073b32"><title>Products | FigurineHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="pages.css"></head>
+<body data-page="products"><main class="page">
+<div class="shop">
+<aside class="filters" id="filters">
+<h2>Categories</h2><div class="cats" id="cats"></div>
+<h3>Price Range</h3><input id="price" type="range" min="0" max="50000" step="100" value="50000" aria-label="Maximum price"><div class="range-labels"><span>₱0</span><strong id="priceVal"></strong></div>
+<h3>Condition</h3><label class="check"><input class="cond" type="checkbox" value="New"> New</label><label class="check"><input class="cond" type="checkbox" value="Pre-Owned"> Pre-Owned</label>
+<h3>Availability</h3><label class="check"><input id="instock" type="checkbox"> In Stock Only</label>
+<button class="clear-btn" id="clear" type="button">Clear Filters</button>
+</aside>
+<section>
+<div class="shop-head"><div><h1 class="page-title">Shop</h1><p class="page-sub" id="count" aria-live="polite"></p></div>
+<div class="shop-tools"><select id="sort" aria-label="Sort"><option value="">Popularity</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option><option value="rated">Top rated</option></select>
+<button class="view on" type="button" data-view="grid" aria-label="Grid view">▦</button><button class="view" type="button" data-view="list" aria-label="List view">☰</button></div></div>
+<div class="product-grid" id="grid"></div>
+<p class="empty-state" id="empty" hidden>No products match these filters. Try clearing a few.</p>
+</section></div></main><script src="app.js"></script></body></html>

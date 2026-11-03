@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#073b32"><title>Register | FigurineHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="pages.css"></head>
+<body data-page="register"><main class="auth-page">
+<section class="auth-hero"><a class="brand" href="home.html"><span class="brand-mark" aria-hidden="true">▦</span><span>FigurineHub</span></a>
+<div><h1>Collect. Trade.<br>Be Part of the Community.</h1><p>Join thousands of collectors across the Philippines. Discover rare finds, connect with trusted sellers, and grow your collection.</p>
+<ul class="stats"><li><strong>5,000+</strong>Listings</li><li><strong>2,800+</strong>Sellers</li><li><strong>50,000+</strong>Happy Buyers</li></ul></div></section>
+<section class="auth-panel"><div class="auth-card"><div class="switch"><a href="login.html">Login</a><a href="register.html" class=on>Register</a></div><h2>Create an account</h2><p class="lead">Join the FigurineHub community</p>
+<form id="registerForm"><label class="field"><span>Full Name</span><input name="name" type="text" placeholder="Juan dela Cruz" autocomplete="name" required></label><label class="field"><span>Email Address</span><input name="email" type="email" placeholder="your@email.com" autocomplete="email" required></label><label class="field"><span>Password (8+ characters)</span><input name="password" type="password" placeholder="••••••••" autocomplete="new-password" required></label><label class="field"><span>Confirm Password</span><input name="confirm" type="password" placeholder="••••••••" autocomplete="new-password" required></label>
+<fieldset class="roles"><legend>Account Type</legend>
+<label><input type="radio" name="role" value="buyer" checked><span><strong>Buyer</strong>Browse &amp; buy</span></label>
+<label><input type="radio" name="role" value="seller"><span><strong>Seller</strong>List &amp; sell</span></label></fieldset>
+<p class="form-error" id="formError" role="alert"></p>
+<button class="button button-dark" type="submit">Create Account</button></form></div></section>
+</main><script src="app.js"></script></body></html>

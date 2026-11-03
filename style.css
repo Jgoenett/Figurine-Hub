@@ -237,3 +237,18 @@ main { max-width: 1440px; margin: 0 auto; padding: 0 clamp(18px, 4.3vw, 58px) 42
     padding: 36px 5.5%;
     color: white;
 }
+
+.brand-logo {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
