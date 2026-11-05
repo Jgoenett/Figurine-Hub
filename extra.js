@@ -51,7 +51,7 @@ Object.assign(pages, {
         ${input("avatar", "Profile photo", "file", 'accept="image/*"')}${seller ? input("cover", "Cover photo", "file", 'accept="image/*"') : ""}
         ${input("name", seller ? "Shop name" : "Full name", "text", `required value="${esc(ME.name)}"`)}
         ${seller ? `<label class="field"><span>About your shop</span><textarea name="bio" rows="3" maxlength="300">${esc(ME.bio || "")}</textarea></label>` : ""}
-        <p class="muted">Email: ${esc(ME.email)}</p><button class="button button-primary" type="submit">Save profile</button></form>
+        <p class="muted">Email: ${esc(ME.email)}</p><p class="form-error" id="profileError" role="alert"></p><button class="button button-primary" type="submit">Save profile</button></form>
       <form id="contactForm" class="panel"><h2>Contact &amp; shipping details</h2><p class="muted">Pre-fills your checkout. Only you can see this.</p>
         ${input("phone", "Mobile number", "tel", `value="${esc(c.phone || "")}"`)}${input("street", "Street address", "text", `value="${esc(c.street || "")}"`)}
         <div class="two">${input("city", "City", "text", `value="${esc(c.city || "")}"`)}${input("postal", "Postal code", "text", `value="${esc(c.postal || "")}"`)}</div>
@@ -156,31 +156,39 @@ Object.assign(pages, {
 });
 
 document.addEventListener("submit", async e => {
-  const f = e.target, g = n => f.elements[n].value.trim();
-  if (f.id === "profileForm") {
-    e.preventDefault(); const btn = f.querySelector("[type=submit]"); btn.disabled = true;
-    const row = { name: g("name") }; if (ME.role === "seller") row.bio = g("bio") || null;
-    for (const [field, col] of [["avatar", "avatar_url"], ["cover", "cover_url"]]) {
-      const file = f.elements[field]?.files[0]; if (!file) continue;
-      const url = await uploadImage(file, field); if (!url) { btn.disabled = false; return; } row[col] = url;
-    }
-    const { error } = await sb.from("profiles").update(row).eq("id", ME.id);
-    if (error) { btn.disabled = false; return toast(error.message); }
-    toast("Profile saved."); setTimeout(() => location.reload(), 700);
+  const f = e.target, g = n => f.elements[n].value.trim(); const fid = f.getAttribute("id");
+  if (fid === "profileForm") {
+    e.preventDefault();
+    const btn = f.querySelector("[type=submit]"), err = $("#profileError"), label = btn.textContent;
+    const stop = msg => { err.textContent = msg || ""; btn.disabled = false; btn.textContent = label; };
+    btn.disabled = true; btn.textContent = "Saving…"; err.textContent = "";
+    try {
+      const row = { name: g("name") }; if (ME.role === "seller") row.bio = g("bio") || null;
+      for (const [field, col] of [["avatar", "avatar_url"], ["cover", "cover_url"]]) {
+        const file = f.elements[field]?.files[0]; if (!file) continue;
+        btn.textContent = "Uploading photo…"; const url = await uploadImage(file, field);
+        if (!url) return stop("A photo couldn’t be uploaded. Try a different image.");
+        row[col] = url;
+      }
+      const { data, error } = await sb.from("profiles").update(row).eq("id", ME.id).select("id");
+      if (error) return stop(error.message);
+      if (!data?.length) return stop("Your profile wasn’t saved (no permission). Make sure migration_profiles.sql was run in Supabase.");
+      toast("Profile saved."); setTimeout(() => location.reload(), 700);
+    } catch (ex) { console.error(ex); stop("Something went wrong. Check your connection and try again."); }
   }
-  if (f.id === "contactForm") {
+  if (fid === "contactForm") {
     e.preventDefault();
     const { error } = await sb.from("profile_private").upsert({ user_id: ME.id, phone: g("phone"), street: g("street"), city: g("city"), postal: g("postal") });
     toast(error ? error.message : "Details saved.");
   }
-  if (f.id === "passwordForm") {
+  if (fid === "passwordForm") {
     e.preventDefault();
     if (g("password").length < 8) return toast("Password must be at least 8 characters.");
     if (g("password") !== g("confirm")) return toast("Passwords don’t match.");
     const { error } = await sb.auth.updateUser({ password: g("password") });
     toast(error ? error.message : "Password updated."); if (!error) f.reset();
   }
-  if (f.id === "checkoutForm") {
+  if (fid === "checkoutForm") {
     e.preventDefault(); const btn = f.querySelector("[type=submit]"); btn.disabled = true;
     const { data, error } = await sb.rpc("place_order", { p_name: g("name"), p_phone: g("phone"), p_address: `${g("address")}, ${g("city")} ${g("postal")}`,
       p_payment: f.elements.payment.value, p_promo: store.get("fh_promo", ""), p_items: cartItems().map(i => ({ id: i.id, qty: i.qty })) });
@@ -188,7 +196,7 @@ document.addEventListener("submit", async e => {
     store.set("fh_cart", []); store.set("fh_promo", "");
     $("#checkoutRoot").innerHTML = `<div class="empty-block"><h2>Thank you for your order!</h2><p>Order <strong>${ref(data)}</strong> was placed.</p><a class="button button-primary" href="orders.html">View my orders</a></div>`;
   }
-  if (f.id === "productForm") {
+  if (fid === "productForm") {
     e.preventDefault();
     const btn = f.querySelector("[type=submit]"), err = $("#productError"), label = btn.textContent;
     const stop = msg => { err.textContent = msg || ""; btn.disabled = false; btn.textContent = label; };
@@ -202,8 +210,9 @@ document.addEventListener("submit", async e => {
       const price = +g("price"), id = g("id");
       const row = { name: g("name"), description: g("description") || null, category: g("category"), genre: g("genre"), price, old_price: +g("old_price") > price ? +g("old_price") : null,
         stock: +g("stock"), item_condition: g("item_condition"), brand: g("brand") || null, material: g("material") || null, image_url };
-      const { error } = id ? await sb.from("products").update(row).eq("id", +id) : await sb.from("products").insert({ ...row, seller_id: ME.id });
-      if (error) return stop(error.message);
+      const res = id ? await sb.from("products").update(row).eq("id", +id).select("id") : await sb.from("products").insert({ ...row, seller_id: ME.id });
+      if (res.error) return stop(res.error.message);
+      if (id && !res.data?.length) return stop("Couldn’t update this product (no permission).");
       toast(id ? "Product updated." : "Product listed. It’s now in the shop."); rerender();
     } catch (ex) { console.error(ex); stop("Something went wrong. Check your connection and try again."); }
   }
