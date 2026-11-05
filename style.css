@@ -252,3 +252,6 @@ main { max-width: 1440px; margin: 0 auto; padding: 0 clamp(18px, 4.3vw, 58px) 42
     gap: 10px;
     text-decoration: none;
 }
+
+/* Shown when a product has no photo yet */
+.no-photo { background: linear-gradient(135deg, #e3ebe7, #c5d4cc); }

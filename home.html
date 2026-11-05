@@ -23,8 +23,8 @@
     </form>
 
     <nav class="desktop-nav" aria-label="Main navigation">
-      <a href="#products" aria-label="Favorites" class="nav-icon">♡</a>
-      <a href="#products" aria-label="Shopping bag" class="nav-icon">♧</a>
+      <a href="wishlist.html" aria-label="Wishlist" class="nav-icon">♡</a>
+      <a href="cart.html" aria-label="Cart" class="nav-icon">♧</a>
       <a href="login.html">Login</a>
       <a class="signup-link" href="register.html">Signup</a>
     </nav>
@@ -38,8 +38,8 @@
         <h1>Your Next Figure<br>or Card is Here.</h1>
         <p class="hero-description">Discover, collect, and trade your favorite<br class="desktop-break"> figurines and trading cards — all in one place.</p>
         <div class="hero-actions">
-          <a href="#products" class="button button-primary">SHOP NOW</a>
-          <a href="#products" class="button button-outline">EXPLORE COLLECTIONS</a>
+          <a href="products.html" class="button button-primary">SHOP NOW</a>
+          <a href="products.html" class="button button-outline">EXPLORE COLLECTIONS</a>
         </div>
       </div>
       <div class="hero-art">
@@ -85,10 +85,9 @@
           <h2>Products</h2>
           <p>Hand-picked collectibles just for you</p>
         </div>
-        <span class="demo-label">DEMO PRODUCTS</span>
       </div>
       <div class="product-grid" id="productGrid" aria-live="polite">
-        <!-- Demo cards are rendered by script.js. Replace the demo array with database data later. -->
+        <!-- Cards are loaded from Supabase by script.js -->
       </div>
       <p class="empty-state" id="emptyState" hidden>No demo products match your search. Try another keyword.</p>
     </section>
@@ -98,7 +97,7 @@
         <span class="limited-pill">Limited time Offers</span>
         <h2>Special Deals &amp;<br>Promotions</h2>
         <p>Save more on your favorite<br> collectibles this week only.</p>
-        <a href="#products" class="button button-primary promotion-button">View All Promotions <span aria-hidden="true">➜</span></a>
+        <a href="products.html" class="button button-primary promotion-button">View All Promotions <span aria-hidden="true">➜</span></a>
       </div>
       <div class="deal-list">
         <article class="deal-card">
@@ -141,6 +140,6 @@
   </footer>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script><script src="supabase-config.js"></script><script src="script.js"></script>
 </body>
 </html>

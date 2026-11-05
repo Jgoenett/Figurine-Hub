@@ -7,7 +7,8 @@
 <body data-page="products"><main class="page">
 <div class="shop">
 <aside class="filters" id="filters">
-<h2>Categories</h2><div class="cats" id="cats"></div>
+<h2>Type</h2><div class="cats" id="types"></div>
+<h3>Genre</h3><div class="cats" id="genres"></div>
 <h3>Price Range</h3><input id="price" type="range" min="0" max="50000" step="100" value="50000" aria-label="Maximum price"><div class="range-labels"><span>₱0</span><strong id="priceVal"></strong></div>
 <h3>Condition</h3><label class="check"><input class="cond" type="checkbox" value="New"> New</label><label class="check"><input class="cond" type="checkbox" value="Pre-Owned"> Pre-Owned</label>
 <h3>Availability</h3><label class="check"><input id="instock" type="checkbox"> In Stock Only</label>
@@ -15,8 +16,8 @@
 </aside>
 <section>
 <div class="shop-head"><div><h1 class="page-title">Shop</h1><p class="page-sub" id="count" aria-live="polite"></p></div>
-<div class="shop-tools"><select id="sort" aria-label="Sort"><option value="">Popularity</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option><option value="rated">Top rated</option></select>
+<div class="shop-tools"><select id="sort" aria-label="Sort"><option value="popular">Popularity</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option><option value="rated">Top rated</option></select>
 <button class="view on" type="button" data-view="grid" aria-label="Grid view">▦</button><button class="view" type="button" data-view="list" aria-label="List view">☰</button></div></div>
 <div class="product-grid" id="grid"></div>
 <p class="empty-state" id="empty" hidden>No products match these filters. Try clearing a few.</p>
-</section></div></main><script src="app.js"></script></body></html>
+</section></div></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script><script src="supabase-config.js"></script><script src="app.js"></script></body></html>
