@@ -50,8 +50,8 @@ function toast(msg) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
 }
 function updateCounts() {
-  const set = (id, n) => { const el = $(id); if (el) { el.textContent = n; el.hidden = !n; } };
-  set("#cartCount", cart().reduce((s, i) => s + i.qty, 0)); set("#wishCount", WISH.length);
+  const set = (sel, n) => document.querySelectorAll(sel).forEach(el => { el.textContent = n; el.hidden = !n; });
+  set("#cartCount, #cartCountM", cart().reduce((s, i) => s + i.qty, 0)); set("#wishCount, #wishCountM", WISH.length);
 }
 function addToCart(id, qty = 1) {
   const p = find(id), c = cart(), line = c.find(i => i.id === p.id);
@@ -79,8 +79,19 @@ function layout() {
     <nav class="desktop-nav" aria-label="Main navigation">
       <a class="nav-icon" href="wishlist.html" aria-label="Wishlist">♡<b class="badge" id="wishCount" hidden></b></a>
       <a class="nav-icon" href="cart.html" aria-label="Cart">♧<b class="badge" id="cartCount" hidden></b></a>
-      ${u ? `${u.role === "seller" ? '<a href="seller.html">Seller</a>' : ""}${u.role === "admin" ? '<a href="admin.html">Admin</a>' : ""}<a href="orders.html">Orders</a><a class="hi" href="profile.html">${u.avatar ? `<img class="nav-avatar" src="${esc(u.avatar)}" alt="">` : ""}Hi, ${esc(u.name)}</a><a href="#" id="logout">Logout</a>`
+      ${u ? `${u.role === "seller" ? '<a href="seller.html">Seller</a>' : ""}${u.role === "admin" ? '<a href="admin.html">Admin</a>' : ""}<a href="orders.html">Orders</a><a class="hi" href="profile.html">${u.avatar ? `<img class="nav-avatar" src="${esc(u.avatar)}" alt="">` : ""}Hi, ${esc(u.name)}</a><a href="#" data-logout>Logout</a>`
           : `<a href="login.html">Login</a><a class="signup-link" href="register.html">Signup</a>`}
+    </nav>
+    <button class="mobile-menu-button" id="menuToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">☰</button>
+    <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation" hidden>
+      <a href="products.html">Shop</a>
+      <a href="wishlist.html">Wishlist <span class="mm-count" id="wishCountM" hidden></span></a>
+      <a href="cart.html">Cart <span class="mm-count" id="cartCountM" hidden></span></a>
+      ${u ? `<a href="orders.html">My orders</a><a href="profile.html">My profile</a>
+        ${u.role === "seller" ? `<p class="mm-group">Selling</p><a href="seller.html#add">Add a product</a><a href="seller.html">Seller dashboard</a><a href="shop.html?id=${u.id}">My public shop</a>` : ""}
+        ${u.role === "admin" ? '<p class="mm-group">Admin</p><a href="admin.html">Admin panel</a>' : ""}
+        <a class="mm-danger" href="#" data-logout>Logout</a>`
+        : '<a href="login.html">Login</a><a class="mm-cta" href="register.html">Sign up</a>'}
     </nav>
   </header>`);
   document.body.insertAdjacentHTML("beforeend", `${bare ? "" : `
@@ -218,7 +229,7 @@ const pages = {
 };
 
 document.addEventListener("click", async e => {
-  const t = e.target.closest("[data-add],[data-wish],[data-qty],[data-remove],[data-step],[data-checkout],[data-tab],[data-buynow],[data-soon],#logout");
+  const t = e.target.closest("[data-add],[data-wish],[data-qty],[data-remove],[data-step],[data-checkout],[data-tab],[data-buynow],[data-soon],[data-logout]");
   if (!t) return;
   if (t.dataset.add) addToCart(+t.dataset.add, t.hasAttribute("data-useqty") ? Math.max(1, +$("#qty").value || 1) : 1);
   else if (t.dataset.wish) {
@@ -235,7 +246,7 @@ document.addEventListener("click", async e => {
   else if (t.dataset.tab) { document.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("on", b === t)); $("#tabPanel").textContent = TABS[t.dataset.tab](find(params.get("id"))); }
   else if (t.dataset.buynow) { addToCart(+t.dataset.buynow, Math.max(1, +$("#qty").value || 1)); location.href = "cart.html"; }
   else if (t.dataset.soon !== undefined) { e.preventDefault(); toast("This feature is coming soon."); }
-  else if (t.id === "logout") { e.preventDefault(); await sb.auth.signOut(); location.href = "index.html"; }
+  else if (t.hasAttribute("data-logout")) { e.preventDefault(); await sb.auth.signOut(); location.href = "index.html"; }
 });
 
 document.addEventListener("submit", async e => {
@@ -266,6 +277,18 @@ document.addEventListener("submit", async e => {
     const next = params.get("next"); location.href = next && /^[\w.-]+(\?.*)?$/.test(next) ? next : "index.html";
   }
 });
+
+// Hamburger menu (phones/tablets)
+function setMenu(open) {
+  const menu = $("#mobileMenu"), btn = $("#menuToggle"); if (!menu || !btn) return;
+  menu.hidden = !open; btn.setAttribute("aria-expanded", open); btn.setAttribute("aria-label", open ? "Close menu" : "Open menu"); btn.textContent = open ? "✕" : "☰";
+}
+document.addEventListener("click", e => {
+  const menu = $("#mobileMenu"); if (!menu) return;
+  if (e.target.closest("#menuToggle")) setMenu(menu.hidden);
+  else if (!menu.hidden && !e.target.closest("#mobileMenu")) setMenu(false);
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") setMenu(false); });
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadSession(); layout(); await loadProducts();

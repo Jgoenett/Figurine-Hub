@@ -57,6 +57,31 @@ document.querySelectorAll(".deal-card code").forEach(code => {
 
 loadFeatured();
 
+// Rotating "Featured collectibles" card: products the admin ticked as featured. Falls back to the decorative card if none.
+async function loadHeroFeatured() {
+  const card = document.querySelector(".hero-main-image"); if (!card) return;
+  const { data, error } = await sb.from("products").select("id, name, price, image_url").eq("featured", true).gt("stock", 0).order("created_at", { ascending: false }).limit(6);
+  if (error || !data?.length) return;
+  card.classList.add("has-featured"); card.removeAttribute("role"); card.setAttribute("aria-label", "Featured collectibles"); card.setAttribute("aria-roledescription", "carousel");
+  card.innerHTML = data.map(p => `<a class="hf-slide ${p.image_url ? "" : "no-photo"}" href="product.html?id=${p.id}"${p.image_url ? ` style="background-image:url('${esc(p.image_url)}')"` : ""}>
+      <span class="hf-caption"><span class="hf-name">${esc(p.name)}</span><strong>${money(p.price)}</strong></span></a>`).join("")
+    + (data.length > 1 ? `<div class="hf-dots">${data.map((_, k) => `<button type="button" data-k="${k}" aria-label="Show featured product ${k + 1}"></button>`).join("")}</div>` : "");
+  const slides = [...card.querySelectorAll(".hf-slide")], dots = [...card.querySelectorAll(".hf-dots button")];
+  let i = 0, timer;
+  const show = n => {
+    i = (n + slides.length) % slides.length;
+    slides.forEach((s, k) => { s.classList.toggle("on", k === i); s.tabIndex = k === i ? 0 : -1; s.setAttribute("aria-hidden", k !== i); });
+    dots.forEach((d, k) => d.classList.toggle("on", k === i));
+  };
+  const stop = () => clearInterval(timer);
+  const start = () => { stop(); if (slides.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) timer = setInterval(() => show(i + 1), 4000); };
+  card.addEventListener("click", e => { const b = e.target.closest("[data-k]"); if (b) { show(+b.dataset.k); start(); } });
+  ["mouseenter", "focusin"].forEach(ev => card.addEventListener(ev, stop));
+  ["mouseleave", "focusout"].forEach(ev => card.addEventListener(ev, start));
+  show(0); start();
+}
+loadHeroFeatured();
+
 // Show Orders / Logout in the header when someone is logged in.
 sb.auth.getSession().then(({ data: { session } }) => {
   if (!session) return;
@@ -65,3 +90,26 @@ sb.auth.getSession().then(({ data: { session } }) => {
   out.textContent = "Logout"; out.href = "#";
   out.onclick = async e => { e.preventDefault(); await sb.auth.signOut(); location.reload(); };
 });
+
+// Hamburger menu on the home page (the header here is static HTML, so we build the panel here).
+(async function setupMenu() {
+  const header = document.querySelector(".site-header"), btn = document.getElementById("menuToggle"); if (!header || !btn) return;
+  const { data: { session } } = await sb.auth.getSession();
+  let role = null;
+  if (session) { const { data: p } = await sb.from("profiles").select("role").eq("id", session.user.id).maybeSingle(); role = p?.role; }
+  let cartN = 0; try { cartN = JSON.parse(localStorage.getItem("fh_cart") || "[]").reduce((s, i) => s + i.qty, 0); } catch {}
+  header.insertAdjacentHTML("beforeend", `<nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation" hidden>
+    <a href="products.html">Shop</a><a href="wishlist.html">Wishlist</a>
+    <a href="cart.html">Cart ${cartN ? `<span class="mm-count">${cartN}</span>` : ""}</a>
+    ${session ? `<a href="orders.html">My orders</a><a href="profile.html">My profile</a>
+      ${role === "seller" ? `<p class="mm-group">Selling</p><a href="seller.html#add">Add a product</a><a href="seller.html">Seller dashboard</a><a href="shop.html?id=${session.user.id}">My public shop</a>` : ""}
+      ${role === "admin" ? '<p class="mm-group">Admin</p><a href="admin.html">Admin panel</a>' : ""}
+      <a class="mm-danger" href="#" id="menuLogout">Logout</a>` : '<a href="login.html">Login</a><a class="mm-cta" href="register.html">Sign up</a>'}
+  </nav>`);
+  const menu = document.getElementById("mobileMenu");
+  const setMenu = open => { menu.hidden = !open; btn.setAttribute("aria-expanded", open); btn.setAttribute("aria-controls", "mobileMenu"); btn.setAttribute("aria-label", open ? "Close menu" : "Open menu"); btn.textContent = open ? "✕" : "☰"; };
+  btn.addEventListener("click", () => setMenu(menu.hidden));
+  document.addEventListener("click", e => { if (!menu.hidden && !e.target.closest("#mobileMenu, #menuToggle")) setMenu(false); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") setMenu(false); });
+  document.getElementById("menuLogout")?.addEventListener("click", async e => { e.preventDefault(); await sb.auth.signOut(); location.reload(); });
+})();

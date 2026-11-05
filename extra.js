@@ -127,6 +127,7 @@ Object.assign(pages, {
       root._products = mine;
     };
     await rerender();
+    if (location.hash === "#add") $("#productForm")?.scrollIntoView({ behavior: "smooth" });
   },
 
   async admin() {
@@ -148,7 +149,7 @@ Object.assign(pages, {
       <h2 class="sub-title">Users &amp; sellers</h2>${note}${table(["Name", "Email", "Role", "Status", ""], us.map(x => tr([esc(x.name), esc(x.email), x.role,
         x.banned ? "Suspended" : x.role === "seller" && !x.approved ? "Pending approval" : "Active",
         x.role === "admin" ? "" : (x.role === "seller" && !x.approved ? `<button class="link-btn dark" data-approve="${x.id}">Approve</button> ` : "") + `<button class="link-btn" data-ban="${x.id}" data-state="${x.banned}">${x.banned ? "Unban" : "Suspend"}</button>`])))}
-      <h2 class="sub-title">All listings</h2>${table(["Product", "Seller", "Price", "Stock", ""], ps.map(p => tr([esc(p.name), esc(p.profiles?.name), money(p.price), p.stock, `<button class="link-btn" data-rm="${p.id}">Remove</button>`])))}
+      <h2 class="sub-title">All listings</h2><p class="muted">Tick up to 6 in-stock products to show in the rotating “Featured collectibles” card on the home page.</p>${table(["Featured", "Product", "Seller", "Price", "Stock", ""], ps.map(p => tr([`<input type="checkbox" data-feature="${p.id}" ${p.featured ? "checked" : ""} aria-label="Feature on home page">`, esc(p.name), esc(p.profiles?.name), money(p.price), p.stock, `<button class="link-btn" data-rm="${p.id}">Remove</button>`])))}
       <h2 class="sub-title">All order items</h2>${table(["Order", "Customer", "Item", "Amount", "Status"], rows.map(r => tr([ref(r.order_id), esc(r.orders?.name), `${esc(r.product_name)} ×${r.qty}`, money(r.price * r.qty), statusSel(r)])))}`;
     };
     await rerender();
@@ -233,6 +234,14 @@ document.addEventListener("click", async e => {
 });
 
 document.addEventListener("change", async e => {
+  const feat = e.target.dataset?.feature;
+  if (feat) {
+    const box = e.target, on = box.checked;
+    if (on && document.querySelectorAll("[data-feature]:checked").length > 6) { box.checked = false; return toast("You can feature up to 6 products."); }
+    const { data, error } = await sb.from("products").update({ featured: on }).eq("id", +feat).select("id");
+    if (error || !data?.length) { box.checked = !on; return toast(error?.message || "Couldn’t update (no permission). Run migration_featured.sql first."); }
+    return toast(on ? "Added to the home page." : "Removed from the home page.");
+  }
   const sid = e.target.dataset?.stock;
   if (sid) { const { error } = await sb.from("products").update({ stock: Math.max(0, Math.floor(+e.target.value) || 0) }).eq("id", +sid); toast(error ? error.message : "Stock updated."); return; }
   const id = e.target.dataset?.status; if (!id) return;
