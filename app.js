@@ -96,7 +96,7 @@ function card(p, heart = false) {
   const on = WISH.includes(p.id);
   return `<article class="product-card">
     ${heart ? `<button class="wish-btn" type="button" data-wish="${p.id}" aria-label="Toggle wishlist">${on ? "♥" : "♡"}</button>` : ""}
-    <a href="product.html?id=${p.id}" class="product-image image-placeholder no-photo"${artStyle(p)} role="img" aria-label="Image of ${esc(p.name)}"><span class="placeholder-label">${p.img ? "" : "No photo"}</span></a>
+    <a href="product.html?id=${p.id}" class="product-image image-placeholder no-photo"${artStyle(p)} role="img" aria-label="Image of ${esc(p.name)}">${p.img ? "" : '<span class="placeholder-label">No photo</span>'}</a>
     <p class="product-category">${p.category}</p>
     <h3 class="product-name"><a href="product.html?id=${p.id}">${esc(p.name)}</a></h3>
     <div class="product-rating" aria-label="${p.rating} out of 5 stars">${stars(Math.round(p.rating))} <span>${p.rating} (${p.reviews})</span></div>
@@ -239,15 +239,15 @@ document.addEventListener("click", async e => {
 });
 
 document.addEventListener("submit", async e => {
-  const f = e.target, v = n => f.elements[n]?.value.trim(), err = $("#formError");
-  if (f.id === "newsletterForm") { e.preventDefault(); $("#newsletterMessage").textContent = "Thanks! Newsletter signup is a demo for now."; f.reset(); }
-  if (f.id === "promoForm") { e.preventDefault(); store.set("fh_promo", $("#promoInput").value.trim().toUpperCase()); rerender(); }
-  if (f.id === "reviewForm") {
+  const f = e.target, v = n => f.elements[n]?.value.trim(), err = $("#formError"), fid = f.getAttribute("id");
+  if (fid === "newsletterForm") { e.preventDefault(); $("#newsletterMessage").textContent = "Thanks! Newsletter signup is a demo for now."; f.reset(); }
+  if (fid === "promoForm") { e.preventDefault(); store.set("fh_promo", $("#promoInput").value.trim().toUpperCase()); rerender(); }
+  if (fid === "reviewForm") {
     e.preventDefault();
     const { error } = await sb.from("reviews").upsert({ product_id: +f.dataset.pid, user_id: ME.id, rating: +v("rating"), comment: v("comment") }, { onConflict: "product_id,user_id" });
     if (error) return toast(error.message); location.reload();
   }
-  if (f.id === "registerForm") {
+  if (fid === "registerForm") {
     e.preventDefault(); err.classList.remove("ok");
     if (v("password").length < 8) return err.textContent = "Password must be at least 8 characters.";
     if (v("password") !== v("confirm")) return err.textContent = "Passwords don’t match.";
@@ -257,7 +257,7 @@ document.addEventListener("submit", async e => {
     if (!data.session) { err.classList.add("ok"); return err.textContent = "Almost done! Check your email to confirm your account, then log in."; }
     location.href = "home.html";
   }
-  if (f.id === "loginForm") {
+  if (fid === "loginForm") {
     e.preventDefault(); err.textContent = "";
     const { data, error } = await sb.auth.signInWithPassword({ email: v("email"), password: v("password") });
     if (error) return err.textContent = "Email or password is incorrect.";
