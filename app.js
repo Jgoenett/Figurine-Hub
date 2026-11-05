@@ -71,7 +71,7 @@ function layout() {
   const u = ME, bare = ["login", "register"].includes(document.body.dataset.page);
   if (!bare) document.body.insertAdjacentHTML("afterbegin", `
   <header class="site-header">
-    <a class="brand" href="home.html"><img src="images/cat2.png" alt="" class="brand-logo"><span>FigurineHub</span></a>
+    <a class="brand" href="index.html"><img src="images/cat2.png" alt="" class="brand-logo"><span>FigurineHub</span></a>
     <form class="search-bar" action="products.html" role="search">
       <input name="q" type="search" value="${esc(params.get("q") || "")}" placeholder="Search figures, cards, brands..." aria-label="Search products">
       <button type="submit" aria-label="Search">⌕</button>
@@ -84,7 +84,7 @@ function layout() {
     </nav>
   </header>`);
   document.body.insertAdjacentHTML("beforeend", `${bare ? "" : `
-  <footer class="site-footer"><div class="footer-top"><a class="brand footer-brand" href="home.html"><img src="images/cat2.png" alt="" class="brand-logo"><span>FigurineHub</span></a>
+  <footer class="site-footer"><div class="footer-top"><a class="brand footer-brand" href="index.html"><img src="images/cat2.png" alt="" class="brand-logo"><span>FigurineHub</span></a>
   <form class="newsletter" id="newsletterForm"><label for="nlEmail">Get deals in your inbox</label><div class="newsletter-control"><input id="nlEmail" type="email" placeholder="your@email.com" required><button type="submit">GO</button></div><span id="newsletterMessage" class="newsletter-message" aria-live="polite"></span></form></div>
   <p class="footer-tagline">Your premier destination for figurines and trading cards. Collect. Trade. Discover.</p>
   <p class="copyright">© 2026 FigurineHub. All rights reserved.</p></footer>`}<div class="toast" id="toast" role="status" aria-live="polite"></div>`);
@@ -153,7 +153,7 @@ const pages = {
     const { data } = await sb.from("reviews").select("rating, comment, created_at, profiles(name)").eq("product_id", p.id).order("created_at", { ascending: false });
     const revs = data || [], on = WISH.includes(p.id), off = p.old > p.price ? Math.round((1 - p.price / p.old) * 100) : 0;
     root.innerHTML = `
-      <nav class="crumbs"><a href="home.html">Home</a> / <a href="products.html">Shop</a> / <a href="products.html?cat=${encodeURIComponent(p.category)}">${p.category}</a> / ${esc(p.name)}</nav>
+      <nav class="crumbs"><a href="index.html">Home</a> / <a href="products.html">Shop</a> / <a href="products.html?cat=${encodeURIComponent(p.category)}">${p.category}</a> / ${esc(p.name)}</nav>
       <div class="detail">
         <div class="detail-image image-placeholder no-photo"${artStyle(p)} role="img" aria-label="Image of ${esc(p.name)}"></div>
         <div class="detail-info">
@@ -235,7 +235,7 @@ document.addEventListener("click", async e => {
   else if (t.dataset.tab) { document.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("on", b === t)); $("#tabPanel").textContent = TABS[t.dataset.tab](find(params.get("id"))); }
   else if (t.dataset.buynow) { addToCart(+t.dataset.buynow, Math.max(1, +$("#qty").value || 1)); location.href = "cart.html"; }
   else if (t.dataset.soon !== undefined) { e.preventDefault(); toast("This feature is coming soon."); }
-  else if (t.id === "logout") { e.preventDefault(); await sb.auth.signOut(); location.href = "home.html"; }
+  else if (t.id === "logout") { e.preventDefault(); await sb.auth.signOut(); location.href = "index.html"; }
 });
 
 document.addEventListener("submit", async e => {
@@ -255,7 +255,7 @@ document.addEventListener("submit", async e => {
     const { data, error } = await sb.auth.signUp({ email: v("email"), password: v("password"), options: { data: { name: v("name"), role: v("role") } } });
     if (error) return err.textContent = error.message;
     if (!data.session) { err.classList.add("ok"); return err.textContent = "Almost done! Check your email to confirm your account, then log in."; }
-    location.href = "home.html";
+    location.href = "index.html";
   }
   if (fid === "loginForm") {
     e.preventDefault(); err.textContent = "";
@@ -263,7 +263,7 @@ document.addEventListener("submit", async e => {
     if (error) return err.textContent = "Email or password is incorrect.";
     const { data: p } = await sb.from("profiles").select("banned").eq("id", data.user.id).single();
     if (p?.banned) { await sb.auth.signOut(); return err.textContent = "This account has been suspended."; }
-    const next = params.get("next"); location.href = next && /^[\w.-]+(\?.*)?$/.test(next) ? next : "home.html";
+    const next = params.get("next"); location.href = next && /^[\w.-]+(\?.*)?$/.test(next) ? next : "index.html";
   }
 });
 

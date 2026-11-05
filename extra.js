@@ -9,7 +9,7 @@ const stat = (n, l) => `<div class="stat"><strong>${n}</strong><span>${l}</span>
 const input = (n, l, t = "text", extra = "") => `<label class="field"><span>${l}</span><input name="${n}" type="${t}" ${extra}></label>`;
 const opts = (n, l, list) => `<label class="field"><span>${l}</span><select name="${n}">${list.map(o => `<option>${o}</option>`).join("")}</select></label>`;
 const ref = id => "FH-" + id;
-const fail = (root, err) => { console.error(err); root.innerHTML = empty(`Something went wrong loading this page.<br><small>${esc(err?.message || "")} ${esc(err?.code || "")}</small>`, "home.html", "Back to home"); };
+const fail = (root, err) => { console.error(err); root.innerHTML = empty(`Something went wrong loading this page.<br><small>${esc(err?.message || "")} ${esc(err?.code || "")}</small>`, "index.html", "Back to home"); };
 const cartItems = () => cart().map(c => ({ ...find(c.id), qty: c.qty })).filter(i => i.id);
 
 async function shrink(file, max = 1600) {
@@ -35,7 +35,7 @@ const bgOf = u => u ? ` style="background-image:url('${esc(u)}')"` : "";
 
 function guard(roles, root) {
   if (!ME) { location.href = `login.html?next=${thisPage()}`; return null; }
-  if (!roles.includes(ME.role)) { root.innerHTML = empty("You don’t have access to this page.", "home.html", "Back to home"); return null; }
+  if (!roles.includes(ME.role)) { root.innerHTML = empty("You don’t have access to this page.", "index.html", "Back to home"); return null; }
   return ME;
 }
 
@@ -107,7 +107,7 @@ Object.assign(pages, {
 
   async seller() {
     const root = $("#sellerRoot"); if (!guard(["seller", "admin"], root)) return;
-    if (ME.role === "seller" && !ME.approved) { root.innerHTML = empty("Your seller account is waiting for admin approval. You can list products once it’s approved.", "home.html", "Back to home"); return; }
+    if (ME.role === "seller" && !ME.approved) { root.innerHTML = empty("Your seller account is waiting for admin approval. You can list products once it’s approved.", "index.html", "Back to home"); return; }
     rerender = async () => {
       const [a, b] = await Promise.all([
         sb.from("products").select("*").eq("seller_id", ME.id).order("created_at", { ascending: false }),
