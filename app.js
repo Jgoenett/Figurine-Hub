@@ -78,7 +78,7 @@ function layout() {
     </form>
     <nav class="desktop-nav" aria-label="Main navigation">
       <a class="nav-icon" href="wishlist.html" aria-label="Wishlist">♡<b class="badge" id="wishCount" hidden></b></a>
-      <a class="nav-icon" href="cart.html" aria-label="Cart">♧<b class="badge" id="cartCount" hidden></b></a>
+      <a class="nav-icon" href="cart.html" aria-label="Cart">🛒<b class="badge" id="cartCount" hidden></b></a>
       ${u ? `${u.role === "seller" ? '<a href="seller.html">Seller</a>' : ""}${u.role === "admin" ? '<a href="admin.html">Admin</a>' : ""}<a href="orders.html">Orders</a><a class="hi" href="profile.html">${u.avatar ? `<img class="nav-avatar" src="${esc(u.avatar)}" alt="">` : ""}Hi, ${esc(u.name)}</a><a href="#" data-logout>Logout</a>`
           : `<a href="login.html">Login</a><a class="signup-link" href="register.html">Signup</a>`}
     </nav>
