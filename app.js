@@ -1,4 +1,5 @@
 // FigurineHub shared logic, backed by Supabase (auth, database, RLS). Cart and promo code stay in localStorage until checkout.
+const URL_HASH = location.hash;   // captured before supabase-js clears it (used for reset-link errors)
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const PRODUCTS = [];
 let ME = null, WISH = [], toastTimer, rerender = () => {};
@@ -68,7 +69,7 @@ async function toggleWish(id) {
 }
 
 function layout() {
-  const u = ME, bare = ["login", "register"].includes(document.body.dataset.page);
+  const u = ME, bare = ["login", "register", "forgot", "reset"].includes(document.body.dataset.page);
   if (!bare) document.body.insertAdjacentHTML("afterbegin", `
   <header class="site-header">
     <a class="brand" href="index.html"><img src="images/cat2.png" alt="" class="brand-logo"><span>FigurineHub</span></a>
@@ -78,7 +79,7 @@ function layout() {
     </form>
     <nav class="desktop-nav" aria-label="Main navigation">
       <a class="nav-icon" href="wishlist.html" aria-label="Wishlist">♡<b class="badge" id="wishCount" hidden></b></a>
-      <a class="nav-icon" href="cart.html" aria-label="Cart">🛒<b class="badge" id="cartCount" hidden></b></a>
+      <a class="nav-icon" href="cart.html" aria-label="Cart">♧<b class="badge" id="cartCount" hidden></b></a>
       ${u ? `${u.role === "seller" ? '<a href="seller.html">Seller</a>' : ""}${u.role === "admin" ? '<a href="admin.html">Admin</a>' : ""}<a href="orders.html">Orders</a><a class="hi" href="profile.html">${u.avatar ? `<img class="nav-avatar" src="${esc(u.avatar)}" alt="">` : ""}Hi, ${esc(u.name)}</a><a href="#" data-logout>Logout</a>`
           : `<a href="login.html">Login</a><a class="signup-link" href="register.html">Signup</a>`}
     </nav>
@@ -134,6 +135,19 @@ const TABS = {
 };
 
 const pages = {
+  login() {
+    if (params.get("reset")) { const e = $("#formError"); e.classList.add("ok"); e.textContent = "Password updated! Log in with your new password."; }
+  },
+
+  async reset() {
+    const root = $("#resetRoot"), hashErr = new URLSearchParams(URL_HASH.slice(1)).get("error_description");
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session || hashErr) { root.innerHTML = `<p class="form-error">${esc(hashErr || "This reset link is invalid or has expired.")}</p><a class="button button-dark" href="forgot-password.html">Request a new link</a>`; return; }
+    root.innerHTML = `<form id="resetForm"><label class="field"><span>New password (8+ characters)</span><input name="password" type="password" placeholder="••••••••" autocomplete="new-password" minlength="8" required></label>
+      <label class="field"><span>Confirm new password</span><input name="confirm" type="password" placeholder="••••••••" autocomplete="new-password" required></label>
+      <p class="form-error" id="formError" role="alert"></p><button class="button button-dark" type="submit">Update password</button></form>`;
+  },
+
   products() {
     const q = (params.get("q") || "").toLowerCase(), st = { cat: params.get("cat") || "All", genre: "All" };
     $("#types").innerHTML = ["All", "Figurines", "Trading Cards"].map(c => `<button type="button" data-cat="${c}">${c}</button>`).join("");
@@ -268,8 +282,25 @@ document.addEventListener("submit", async e => {
     if (!data.session) { err.classList.add("ok"); return err.textContent = "Almost done! Check your email to confirm your account, then log in."; }
     location.href = "index.html";
   }
+  if (fid === "forgotForm") {
+    e.preventDefault(); err.classList.remove("ok"); err.textContent = "";
+    const btn = f.querySelector("[type=submit]"); btn.disabled = true;
+    const { error } = await sb.auth.resetPasswordForEmail(v("email"), { redirectTo: new URL("reset-password.html", location.href).href });
+    btn.disabled = false;
+    if (error) { console.error(error); return err.textContent = error.status === 429 ? "Please wait a minute before requesting another link." : "We couldn’t send the email right now. Please try again in a few minutes."; }
+    err.classList.add("ok"); err.textContent = "If an account exists for that email, we’ve sent a reset link. Check your inbox and spam folder.";
+  }
+  if (fid === "resetForm") {
+    e.preventDefault(); err.classList.remove("ok");
+    if (v("password").length < 8) return err.textContent = "Password must be at least 8 characters.";
+    if (v("password") !== v("confirm")) return err.textContent = "Passwords don’t match.";
+    const btn = f.querySelector("[type=submit]"); btn.disabled = true;
+    const { error } = await sb.auth.updateUser({ password: v("password") });
+    if (error) { btn.disabled = false; return err.textContent = error.message; }
+    await sb.auth.signOut(); location.href = "login.html?reset=1";
+  }
   if (fid === "loginForm") {
-    e.preventDefault(); err.textContent = "";
+    e.preventDefault(); err.textContent = ""; err.classList.remove("ok");
     const { data, error } = await sb.auth.signInWithPassword({ email: v("email"), password: v("password") });
     if (error) return err.textContent = "Email or password is incorrect.";
     const { data: p } = await sb.from("profiles").select("banned").eq("id", data.user.id).single();
